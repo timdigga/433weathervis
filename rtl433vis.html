@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Weather Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            background: radial-gradient(circle, #001F3F, #000);
+            color: #0ff;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .upload-container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            max-width: 400px;
+            margin: auto;
+            margin-top: 20px;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .status-icon {
+            font-size: 24px;
+            animation: pulse 1.5s infinite;
+        }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        canvas {
+            max-width: 800px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            padding: 10px;
+        }
+        h2, h3 {
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+        .slider-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            max-width: 600px;
+            margin: auto;
+            font-size: 18px;
+            color: #ff0;
+            font-weight: bold;
+            position: relative;
+        }
+        .slider-text {
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: slide 10s infinite;
+        }
+        @keyframes slide {
+            0% { transform: translateY(-50%); }
+            25% { transform: translateY(-60%); }
+            50% { transform: translateY(-50%); }
+            75% { transform: translateY(-40%); }
+            100% { transform: translateY(-50%); }
+        }
+    </style>
+</head>
+<body>
+    <h2>Interactive Weather Data Visualization</h2>
+    <div class="upload-container">
+        <p>Upload your weather data JSON file to visualize the trends.</p>
+        <input type="file" id="fileInput" accept=".json">
+        <select id="deviceSelector" style="display: none;"></select>
+        <div class="status-message" id="statusMessage">
+            <span id="statusIcon" class="status-icon">✔</span>
+            <span id="statusText"></span>
+        </div>
+    </div>
+    <div id="charts"></div>
+    
+    <div class="slider-container">
+        <div class="slider-text">
+            <p>Don't forget to visit my <a href="https://github.com/yourgithubusername" target="_blank" style="color: #0ff;">GitHub</a> for more cool projects with Flipper Zero!</p>
+        </div>
+    </div>
+    
+    <script>
+        let weatherData = [];
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            
+            if (!file) return;
+            
+            if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+                statusIcon.textContent = "✘";
+                statusIcon.className = "status-icon error";
+                statusText.textContent = "Please upload a JSON file!";
+                return;
+            }
+
+            statusIcon.textContent = "✔";
+            statusIcon.className = "status-icon success";
+            statusText.textContent = "File successfully uploaded!";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                weatherData = e.target.result.split('\n').filter(line => line).map(line => JSON.parse(line));
+                populateDeviceSelector(weatherData);
+            };
+            reader.readAsText(file);
+        });
+
+        function populateDeviceSelector(data) {
+            const deviceSelector = document.getElementById('deviceSelector');
+            deviceSelector.innerHTML = '';
+            const uniqueDevices = [...new Set(data.map(entry => entry.model))];
+
+            uniqueDevices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device;
+                option.textContent = device;
+                deviceSelector.appendChild(option);
+            });
+
+            deviceSelector.style.display = 'block';
+            deviceSelector.addEventListener('change', () => displayCharts(deviceSelector.value));
+            displayCharts(uniqueDevices[0]);
+        }
+
+        function displayCharts(selectedDevice) {
+            const filteredData = weatherData.filter(entry => entry.model === selectedDevice);
+            const times = filteredData.map(entry => new Date(entry.time).toLocaleTimeString());
+            const temperatures = filteredData.map(entry => entry.temperature_C || ((entry.temperature_F - 32) * 5 / 9));
+            const humidity = filteredData.map(entry => entry.humidity);
+            const battery = filteredData.map(entry => entry.battery_ok);
+            const button = filteredData.map(entry => entry.button || 0);
+            
+            document.getElementById('charts').innerHTML = '';
+            createChart('Temperature (°C)', times, temperatures, '#0ff');
+            createChart('Humidity (%)', times, humidity, '#ff0');
+            createChart('Battery Status', times, battery, '#f00');
+            createChart('Button Pressed', times, button, '#0f0');
+        }
+
+        function createChart(label, labels, data, color) {
+            const canvas = document.createElement('canvas');
+            document.getElementById('charts').appendChild(canvas);
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '40',
+                        fill: true,
+                        tension: 0.4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Time' } },
+                        y: { title: { display: true, text: label } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#0ff',
+                                font: { size: 14 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
