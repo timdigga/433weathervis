@@ -43,5 +43,41 @@ Run RTL433 to start receiving data. If your weather station transmits data, RTL4
 To save your captured data into a json file, you need to run this command!
 Example command:
 ```bash
-rtl_433 -F json > weatherdata.json 
+rtl_433 -F json > weatherdata.json
+```
+
+
+
+
+
+
+
+
+
+
+
+## Project Overview
+
+The **Interactive Weather Data Visualization** tool is a web-based application that allows users to upload JSON files containing weather data captured from RTL433 devices. Once the data is uploaded, the tool visualizes it through interactive charts, displaying trends such as temperature, humidity, battery status, and button presses over time.
+
+### Features:
+- Upload a JSON file containing weather data.
+- Select devices from the uploaded data to visualize.
+- Interactive charts showing:
+  - Temperature (°C or °F)
+  - Humidity (%)
+  - Battery status
+  - Button press events
+- Sleek and responsive design.
+
+### Technology:
+- **HTML5** for structuring the page.
+- **CSS** for styling the page with custom animations and a modern look.
+- **Chart.js** for generating interactive charts.
+- **JavaScript** for handling file uploads, data processing, and rendering charts.
+
+### Credits:
+- **Tim Digga** – Developer of this project.
+- **Chart.js** – For providing the charting library used for visualizations. [Chart.js GitHub](https://github.com/chartjs/Chart.js).
+- **RTL433** – For enabling weather data collection through RTL-SDR. [RTL433 GitHub](https://github.com/merbanan/rtl_433).
 
