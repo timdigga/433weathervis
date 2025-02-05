@@ -1,2 +1,46 @@
-# 433weathervis
-Adds to your json weather data a cool visualization!
+# Interactive Weather Data Visualization
+
+Welcome to the **Interactive Weather Data Visualization** project! This tool lets you visualize weather trends based on data captured by RTL-SDR devices using the [RTL433](https://github.com/merbanan/rtl_433) software.
+
+The data captured can include temperature, humidity, battery status, and button presses from various weather sensors, and is displayed through interactive charts.
+
+---
+
+## Features
+
+- **Interactive Visualizations**: Upload your weather data in JSON format and get interactive charts displaying:
+  - Temperature (°C or °F)
+  - Humidity (%)
+  - Battery Status
+  - Button Pressed
+  
+- **Device Selector**: If you have data from multiple devices, you can select which device's data to visualize.
+
+- **Sleek and Responsive Design**: Works across multiple devices with a smooth, user-friendly interface.
+
+---
+
+## Project by
+
+**Tim Digga**  
+A passionate enthusiast of **RTL-SDR**, **Flipper Zero**, and electronics. I enjoy experimenting with wireless signals and creating cool, useful tools.
+
+---
+
+## How to Use
+
+### Step 1: Capture Data with RTL433
+
+You need to have an RTL-SDR device and the [RTL433 software](https://github.com/merbanan/rtl_433) installed on your system. This tool will allow you to capture data from various weather stations and devices.
+
+**1. Install RTL433:**
+
+Follow the installation instructions for your operating system on the [RTL433 GitHub page](https://github.com/merbanan/rtl_433).
+
+**2. Capture Weather Data:**
+
+Run RTL433 to start receiving data. If your weather station transmits data, RTL433 will pick it up and display it in the terminal.
+
+Example command:
+```bash
+rtl_433 -f 433920000 -g 20
