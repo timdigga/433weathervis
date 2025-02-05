@@ -59,6 +59,19 @@
         .slider-text {
             animation: pulse 3s infinite;
         }
+        .car-image {
+            max-width: 500px;
+            margin-top: 20px;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .car-tire-pressure {
+            font-size: 18px;
+            color: #ff0;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -128,17 +141,24 @@
 
         function displayCharts(selectedDevice) {
             const filteredData = weatherData.filter(entry => entry.model === selectedDevice);
-            const times = filteredData.map(entry => new Date(entry.time).toLocaleTimeString());
-            const temperatures = filteredData.map(entry => entry.temperature_C || ((entry.temperature_F - 32) * 5 / 9));
-            const humidity = filteredData.map(entry => entry.humidity);
-            const battery = filteredData.map(entry => entry.battery_ok);
-            const button = filteredData.map(entry => entry.button || 0);
-            
+            const isTPMS = filteredData.some(entry => entry.hasOwnProperty('tpms_pressure'));
+
             document.getElementById('charts').innerHTML = '';
-            createChart('Temperature (°C)', times, temperatures, '#0ff');
-            createChart('Humidity (%)', times, humidity, '#ff0');
-            createChart('Battery Status', times, battery, '#f00');
-            createChart('Button Pressed', times, button, '#0f0');
+
+            if (isTPMS) {
+                displayCarWithTirePressure(filteredData);
+            } else {
+                const times = filteredData.map(entry => new Date(entry.time).toLocaleTimeString());
+                const temperatures = filteredData.map(entry => entry.temperature_C || ((entry.temperature_F - 32) * 5 / 9));
+                const humidity = filteredData.map(entry => entry.humidity);
+                const battery = filteredData.map(entry => entry.battery_ok);
+                const button = filteredData.map(entry => entry.button || 0);
+
+                createChart('Temperature (°C)', times, temperatures, '#0ff');
+                createChart('Humidity (%)', times, humidity, '#ff0');
+                createChart('Battery Status', times, battery, '#f00');
+                createChart('Button Pressed', times, button, '#0f0');
+            }
         }
 
         function createChart(label, labels, data, color) {
@@ -173,6 +193,28 @@
                     }
                 }
             });
+        }
+
+        function displayCarWithTirePressure(data) {
+            const carImageContainer = document.createElement('div');
+            carImageContainer.classList.add('car-image');
+            const carImage = document.createElement('img');
+            carImage.src = "https://example.com/car_image.png"; // Replace with a valid car image URL
+            carImage.alt = "Car with TPMS";
+            carImage.classList.add('car-tire-pressure');
+            carImageContainer.appendChild(carImage);
+
+            const pressureInfo = data.map(entry => {
+                return `Front Left: ${entry.tpms_pressure.front_left} PSI, Front Right: ${entry.tpms_pressure.front_right} PSI, 
+                        Rear Left: ${entry.tpms_pressure.rear_left} PSI, Rear Right: ${entry.tpms_pressure.rear_right} PSI`;
+            }).join('<br>');
+
+            const pressureText = document.createElement('div');
+            pressureText.classList.add('car-tire-pressure');
+            pressureText.innerHTML = `Tire Pressure Info:<br>${pressureInfo}`;
+            carImageContainer.appendChild(pressureText);
+
+            document.getElementById('charts').appendChild(carImageContainer);
         }
     </script>
 </body>
