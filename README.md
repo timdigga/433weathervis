@@ -40,7 +40,8 @@ Follow the installation instructions for your operating system on the [RTL433 Gi
 **2. Capture Weather Data:**
 
 Run RTL433 to start receiving data. If your weather station transmits data, RTL433 will pick it up and display it in the terminal.
-
+To save your captured data into a json file, you need to run this command!
 Example command:
 ```bash
-rtl_433 -f 433920000 -g 20
+rtl_433 -F json > weatherdata.json 
+
